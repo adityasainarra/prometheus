@@ -1,0 +1,117 @@
+fullnameOverride: monitoring
+
+prometheusOperator:
+  enabled: true
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1
+      memory: 1Gi
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    replicas: 3
+    storage:
+      volumeClaimTemplate:
+        spec:
+          resources:
+            requests:
+              storage: 20Gi
+    podAntiAffinity: hard
+
+grafana:
+  enabled: true
+  replicas: 2
+  persistence:
+    enabled: true
+    size: 20Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+prometheus:
+  enabled: true
+  service:
+    type: ClusterIP
+  thanosService:
+    enabled: true
+  thanosServiceMonitor:
+    enabled: true
+  prometheusSpec:
+    replicas: 2
+    logLevel: info
+    retention: 15d
+    retentionSize: "180GB"
+    walCompression: true
+    enableAdminAPI: false
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+    externalLabels:
+      cluster: prod-eu1
+      environment: production
+    replicaExternalLabelName: prometheus_replica
+    resources:
+      requests:
+        cpu: 1
+        memory: 4Gi
+      limits:
+        cpu: 4
+        memory: 12Gi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 200Gi
+    podMetadata:
+      labels:
+        app: prometheus-ha
+    podAntiAffinity: hard
+    thanos:
+      version: v0.35.1
+      objectStorageConfig:
+        name: thanos-objectstore-config
+        key: objstore.yml
+      resources:
+        requests:
+          cpu: 200m
+          memory: 512Mi
+        limits:
+          cpu: 1
+          memory: 2Gi
+
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+defaultRules:
+  create: true
+
+kubernetesServiceMonitors:
+  enabled: true
+kubeApiServer:
+  enabled: true
+kubelet:
+  enabled: true
+kubeControllerManager:
+  enabled: true
+kubeScheduler:
+  enabled: true
+kubeProxy:
+  enabled: true
