@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: monitoring
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+
+    route:
+      group_by: ["alertname", "cluster", "service"]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      receiver: default-receiver
+
+    receivers:
+      - name: default-receiver
+        # Replace with your real integrations (PagerDuty, Slack, Opsgenie, etc.)
+        webhook_configs:
+          - url: http://example-webhook.monitoring.svc.cluster.local/alerts
+            send_resolved: true
